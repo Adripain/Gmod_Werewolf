@@ -61,7 +61,7 @@ if (first() | dupefinished()){
     Join_CMD = "!join"
     Start_CMD = "!start"
 
-    create_holograms_ambiance()
+    create_holograms_ambiance(Max_Players)
 }
 
 function void spawn_new_base(Players_Count:number)

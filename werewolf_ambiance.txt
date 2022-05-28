@@ -1,12 +1,13 @@
 @name werewolf_ambiance
 
-function void create_holograms_ambiance()
+function void create_holograms_ambiance(Max_Players:number)
 {
+    local Ent = entity()
     local Index = 1
     holoCreate(Index)
     holoModel(Index, "models/props_phx/ball.mdl")
-    holoPos(Index, entity():toWorld(vec(0, 0, Max_Players * 2 * 25)))
-    holoAng(Index, entity():toWorld(ang(0, 0, 0)))
+    holoPos(Index, Ent:toWorld(vec(0, 0, Max_Players * 2 * 25)))
+    holoAng(Index, Ent:toWorld(ang(0, 0, 0)))
     holoColor(Index, vec(0, 0, 20))
     holoScale(Index, vec(-Max_Players * 2.5))
     holoDisableShading(Index, 1)
@@ -15,8 +16,8 @@ function void create_holograms_ambiance()
     Index++
     holoCreate(Index)
     holoModel(Index, "models/hunter/tubes/circle2x2.mdl")
-    holoPos(Index, entity():toWorld(vec(0, 0, -10)))
-    holoAng(Index, entity():toWorld(ang(0, 0, 0)))
+    holoPos(Index, Ent:toWorld(vec(0, 0, -10)))
+    holoAng(Index, Ent:toWorld(ang(0, 0, 0)))
     holoColor(Index, vec(0, 0, 20))
     holoScale(Index, vec(Max_Players * 1.1, Max_Players * 1.1, 1))
     holoDisableShading(Index, 1)
