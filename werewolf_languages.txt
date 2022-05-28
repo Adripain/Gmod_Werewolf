@@ -1,0 +1,77 @@
+@name werewolf_languages
+@persist [GameSuffix Join_MSG Join_Game_MSG Launch_MSG Already_On_MSG Your_Role_Is_MSG Day_Up_MSG Voted_For_MSG Killed_MSG He_Her_Is_MSG Is_Goin_To_Die_MSG Revived_MSG Potion_Use_MSG Potion_Already_Used_MSG]:string
+@persist [Already_Alive_MSG Kill_Potion_Used_MSG Canceled_Vote_MSG You_Selected_MSG In_Couple_With_MSG Suicide_MSG Steal_Card_MSG Steal_Victim_Card_MSG Mayor_Election_MSG Mayor_Is_MSG Kill_Vote_Day_MSG]:string
+@persist [White_Wolf_Won_MSG Wolf_Won_MSG Village_Won_MSG Two_Votes_Against_MSG]:string
+@persist [WereWolf_NAME Villager_NAME Witch_NAME Seer_NAME Cupidon_NAME Hunter_NAME Thief_NAME Little_Girl_NAME Raven_NAME Guard_NAME White_Wolf_NAME Black_Wolf_NAME]:string
+@persist [WereWolf_ACT Villager_ACT Witch_ACT Seer_ACT Cupidon_ACT Hunter_ACT Thief_ACT Little_Girl_ACT Raven_ACT Guard_ACT White_Wolf_ACT Black_Wolf_ACT]:string
+
+if (first() | dupefinished()) {
+    ## CONFIG ##
+    local Language = "fr" # fr or en
+    
+    ## SENTENCES ##
+    switch (Language) {
+        
+        case "en",
+        GameSuffix = "[WEREWOLVES]"
+        Join_MSG = "You joined the game, "
+        Join_Game_MSG = " join the game."
+        Already_On_MSG = "You are already on the game !"
+        Launch_MSG = "Game's starting !"
+        Your_Role_Is_MSG = "your role is : "
+        Day_Up_MSG = "Day breaks over the village"
+        Voted_For_MSG = " has voted for "
+        Killed_MSG = " is dead, he was "
+        He_Her_Is_MSG = "He / Her role is "
+        Is_Goin_To_Die_MSG = " is going to die, do you want to use your revive potion ?"
+        Potion_Use_MSG = "(Left Mouse to use your revive potion, Right to use kill potion on someone)"
+        Revived_MSG = "You revived someone"
+        Potion_Already_Used_MSG = "You already used this potion"
+        Already_Alive_MSG = "This player is already alive !"
+        Kill_Potion_Used_MSG = "You used your kill potion on "
+        Canceled_Vote_MSG = " has canceled his vote"
+        You_Selected_MSG = "You selected "
+        In_Couple_With_MSG = "You are now in relationship with "
+        Suicide_MSG = " suicided himself after losting his relationship, he was "
+        Steal_Card_MSG = "You stealed his card, your role is now "
+        Steal_Victim_Card_MSG = "Someone's stealed your card, you now are "
+        Mayor_Election_MSG = "It's time to elect a mayor, vote for the player you think's right"
+        Mayor_Is_MSG = " is now the Mayor !"
+        Kill_Vote_Day_MSG = "Village can now choose someone to execute"
+        White_Wolf_Won_MSG = "White Wolf won the game !"
+        Wolf_Won_MSG = "Wolf won the game !"
+        Village_Won_MSG = "Villagers won the game !"
+        Two_Votes_Against_MSG = " is going to have 2 votes against him."
+        
+        WereWolf_NAME = "WereWolf"
+        Villager_NAME = "Simple Villager"
+        Witch_NAME = "Witch"
+        Seer_NAME = "Seer"
+        Cupidon_NAME = "Cupidon"
+        Hunter_NAME = "Hunter"
+        Thief_NAME = "Thief"
+        Little_Girl_NAME = "Young Girl"
+        Raven_NAME = "Raven"
+        Guard_NAME = "Guard"
+        White_Wolf_NAME = "White Wolf"
+        Black_Wolf_NAME = "Black Wolf"
+        Mayor_NAME = "Mayor"
+        
+        WereWolf_ACT = "Vote a player to kill this night."
+        Villager_ACT = "Try to kill werewolves by finding thems."
+        Witch_ACT = "Choose a player to kill or to revive."
+        Seer_ACT = "Choose a player whose you'r looking to knowing the identity."
+        Cupidon_ACT = "Designates two names among the players. These two people will be The couple."
+        Hunter_ACT = "Kill a player before dying."
+        Thief_ACT = "Steals a player's card."
+        Little_Girl_ACT = "You vision isnt blocked during werewolf turn, you can try to see something but be discret !"
+        Raven_ACT = "Choose a player who will have 2 votes against him."
+        Guard_ACT = "Choose someone so protect. He must be different than the last night."
+        White_Wolf_ACT = "Play 2 times every 2 nights, you can kill a werewolf, you have to finish alone !"
+        Black_Wolf_ACT = "Choose a player to kill each night. You can transform a killed player in werewolf one time"
+        Mayor_ACT = "Lead the village."
+        
+        break
+    
+    }
+}
