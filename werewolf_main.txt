@@ -52,6 +52,7 @@ if (first() | dupefinished()){
     
     E = entity()
     RavenVictim = noentity()#Do not touch
+    Mayor = noentity()      #Do not touch
     
     ## SOUNDS ##
     Player_Join_Successfully_Sound = "buttons/blip2.wav"
@@ -265,6 +266,18 @@ function void vote_for_mayor()
 {
     runOnKeys(Players, 1)
 
+    if (RavenVictim != noentity() & Mayor == noentity()) {
+        local Raven_Add_Votes_Count = 2
+        Got_Votes_On[find_player_id_from_entity(RavenVictim),number] = Raven_Add_Votes_Count
+        for (I = 1, Raven_Add_Votes_Count) {
+            holoCreate(I + 5)
+            holoPos(I + 5, Voted_For[I,entity]:toWorld(vec(0, 0, 60 + I * 10)))
+            holoColor(I + 5, vec(100,0,255))
+            holoModel(I + 5, "models/sprops/misc/alphanum/alphanum_arrow_b.mdl")
+            holoAng(I + 5, Prop_Base[find_player_id_from_entity(Players[I,entity]:aimEntity()),entity]:toWorld(ang(0,0,180)))
+        }
+        RavenVictim = noentity()
+    }
     for (I = 1, Players_Count) {
         if (Player_Alive_Status[I,string] == "alive") {
             if (changed(Players[I,entity]:keyAttack1()) & Players[I,entity]:keyAttack1() & Players[I,entity]:aimEntity():isPlayer()) {
