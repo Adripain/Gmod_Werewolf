@@ -34,6 +34,7 @@ if (first() | dupefinished()){
     #include "werewolf/werewolf_roles"
     #include "werewolf/werewolf_role_playing_order"
     #include "werewolf/werewolf_languages"
+    #include "werewolf/werewolf_ambiance"
     
     Mode = 1                #Do not touch
     Players_Count = 0       #Do not touch
@@ -59,26 +60,8 @@ if (first() | dupefinished()){
     ## COMMANDES ##
     Join_CMD = "!join"
     Start_CMD = "!start"
-    
-    local Index = 1
-    holoCreate(Index)
-    holoModel(Index, "models/props_phx/ball.mdl")
-    holoPos(Index, entity():toWorld(vec(0,0,Max_Players * 2 * 25)))
-    holoAng(Index, entity():toWorld(ang(0,0,0)))
-    holoColor(Index, vec(0,0,20))
-    holoScale(Index, vec(-Max_Players * 2.5))
-    holoDisableShading(Index, 1)
-    holoAlpha(Index,0)
-    
-    Index++
-    holoCreate(Index)
-    holoModel(Index, "models/hunter/tubes/circle2x2.mdl")
-    holoPos(Index, entity():toWorld(vec(0,0,-10)))
-    holoAng(Index, entity():toWorld(ang(0,0,0)))
-    holoColor(Index, vec(0,0,20))
-    holoScale(Index, vec(Max_Players * 1.1,Max_Players * 1.1,1))
-    holoDisableShading(Index, 1)
-    holoAlpha(Index,0)
+
+    create_holograms_ambiance()
 }
 
 function void spawn_new_base(Players_Count:number)
