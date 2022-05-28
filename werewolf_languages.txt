@@ -71,6 +71,20 @@ if (first() | dupefinished()) {
         Black_Wolf_ACT = "Choose a player to kill each night. You can transform a killed player in werewolf one time"
         Mayor_ACT = "Lead the village."
         
+        WereWolf_TM = "WereWolves are about choosing who kill."
+        Villager_TM = ""
+        Witch_TM = "Witch is concocting a new elexir."
+        Seer_TM = "The Seer is about survey a player's role."
+        Cupidon_TM = "Cupidon is shooting arrows at two lovers."
+        Hunter_TM = "The Hunter chooses who gonna follow him in his grave."
+        Thief_TM = "Thief is stealing a role."
+        Little_Girl_TM = ""
+        Raven_TM = "The Raven is about to defame someone."
+        Guard_TM = "The Guard is about to protect someone."
+        White_Wolf_TM = "White Wolf is about killing a WereWolf."
+        Black_Wolf_TM = "Black Wolf is thinking to transform someone in WereWolf."
+        Mayor_TM = ""
+
         break
         
         case "fr",
@@ -100,7 +114,7 @@ if (first() | dupefinished()) {
         Mayor_Is_MSG = " est desormais le maire du village !"
         Kill_Vote_Day_MSG = "Le village peux choisir de tuer quelqu'un"
         White_Wolf_Won_MSG = "Le Loup Blanc a gagner la partie !"
-        Wolf_Won_MSG = "Les Loups-Garrous ont gagner la partie !"
+        Wolf_Won_MSG = "Les Loups-Garous ont gagner la partie !"
         Village_Won_MSG = "Les Villageois gagnent la partie!"
         Two_Votes_Against_MSG = " va avoir 2 votes contre lui."
         
@@ -119,18 +133,32 @@ if (first() | dupefinished()) {
         Mayor_NAME = "Maire"
         
         WereWolf_ACT = "Votez pour un joueur a tuer cette nuit."
-        Villager_ACT = "Essayer de gagner en demasquant les Loups Garrous."
+        Villager_ACT = "Essayer de gagner en demasquant les Loups Garous."
         Witch_ACT = "Choisissez de tuer un joueur ou d'en rescussiter un autre."
         Seer_ACT = "Choisis un joueur dont tu souhaite connaitre le role."
         Cupidon_ACT = "Designes deux personnes parmis les joueurs, celles-ci vont etre en couple."
         Hunter_ACT = "Tue un joueur avant de mourrir."
         Thief_ACT = "Vole la carte de l'un des joueur."
-        Little_Girl_ACT = "Ta vision n'est plus bloquer, espionne discretement les loups garrous"
+        Little_Girl_ACT = "Ta vision n'est plus bloquer, espionne discretement les loups garous"
         Raven_ACT = "Choisis un joueur qui va avoir deux votes contre lui a son reveil."
         Guard_ACT = "Choisis un joueur a proteger, il doit etre different de celui de la nuit precedente."
-        White_Wolf_ACT = "Joue 2 fois 1 nuit sur 2, et tue un loup garrou"
-        Black_Wolf_ACT = "Votez pour un joueur a eliminer durant la nuit, vous pourrez en transformer un en loup garrou"
+        White_Wolf_ACT = "Joue 2 fois 1 nuit sur 2, et tue un Loup Garou"
+        Black_Wolf_ACT = "Votez pour un joueur a eliminer durant la nuit, vous pourrez en transformer un en loup garou"
         Mayor_ACT = "Guidez le village."
+
+        WereWolf_TM = "Les Loups Garous s'apprete a tuer quelqu'un."
+        Villager_TM = ""
+        Witch_TM = "La Sorciere concocte un nouvel elexir."
+        Seer_TM = "La Voyante s'apprete a sonder quelqu'un."
+        Cupidon_TM = "Cupidon va designer deux amoureux."
+        Hunter_TM = "Le Chasseur choisit qui il va emporter avec lui."
+        Thief_TM = "Le Voleur est entrain de voler une carte."
+        Little_Girl_TM = ""
+        Raven_TM = "Le Corbeau s'apprete a diffamer quelqu'un."
+        Guard_TM = "Le garde va proteger quelqu'un."
+        White_Wolf_TM = "Le Loup Blanc reflechit a tuer un Loup Garou."
+        Black_Wolf_TM = "Le Loup Noir hesite a transformer un joueur en Loup Garou."
+        Mayor_TM = ""
         break 
     }
 }
