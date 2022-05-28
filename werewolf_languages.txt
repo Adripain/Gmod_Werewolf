@@ -1,9 +1,10 @@
-@name werewolf_languages
+@name werewolf_languagesWereWolf_ACT
 @persist [GameSuffix Join_MSG Join_Game_MSG Launch_MSG Already_On_MSG Your_Role_Is_MSG Day_Up_MSG Voted_For_MSG Killed_MSG He_Her_Is_MSG Is_Goin_To_Die_MSG Revived_MSG Potion_Use_MSG Potion_Already_Used_MSG]:string
 @persist [Already_Alive_MSG Kill_Potion_Used_MSG Canceled_Vote_MSG You_Selected_MSG In_Couple_With_MSG Suicide_MSG Steal_Card_MSG Steal_Victim_Card_MSG Mayor_Election_MSG Mayor_Is_MSG Kill_Vote_Day_MSG]:string
 @persist [White_Wolf_Won_MSG Wolf_Won_MSG Village_Won_MSG Two_Votes_Against_MSG]:string
 @persist [WereWolf_NAME Villager_NAME Witch_NAME Seer_NAME Cupidon_NAME Hunter_NAME Thief_NAME Little_Girl_NAME Raven_NAME Guard_NAME White_Wolf_NAME Black_Wolf_NAME]:string
 @persist [WereWolf_ACT Villager_ACT Witch_ACT Seer_ACT Cupidon_ACT Hunter_ACT Thief_ACT Little_Girl_ACT Raven_ACT Guard_ACT White_Wolf_ACT Black_Wolf_ACT]:string
+@persist [WereWolf_TM Villager_TM Witch_TM Seer_TM Cupidon_TM Hunter_TM Thief_TM Little_Girl_TM Raven_TM Guard_TM White_Wolf_TM Black_Wolf_TM]:string
 
 if (first() | dupefinished()) {
     ## CONFIG ##
