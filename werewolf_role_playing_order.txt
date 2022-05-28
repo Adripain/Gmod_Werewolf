@@ -1,0 +1,31 @@
+@name werewolf_role_playing_order
+#include "werewolf/werewolf_roles"
+
+function number role_order_to_role_id(Role_Looking_For:number)
+{
+    local I = 0
+
+    while (I < Total_Role_Count) {
+        if (Role_Run_Order[I, number] == Role_Looking_For) {
+            break
+        }
+        I += 1
+    }
+    return I
+}
+
+function number find_role_playing(Role_Looking_For:number)
+{
+    local Tried = Role_Looking_For
+    local Tried_To_Real_Order = 0
+    
+    while (Tried < Total_Role_Count) {
+        Tried_To_Real_Order = role_order_to_role_id(Tried)
+        if (Role_Exist[Tried_To_Real_Order, number] == 1 & Role_Players_Contain_Count[Tried_To_Real_Order, number] > 0) {
+            return Tried
+        }
+        Tried += 1
+    }
+    return 0
+}
+
