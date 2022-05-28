@@ -86,7 +86,9 @@ function void add_new_player(I:number)
     Prop_Base[Players_Count, entity]:soundPlay(I, 0, Player_Join_Successfully_Sound)
     Players[I,entity]:plySetPos(Prop_Base[Players_Count, entity]:toWorld(vec(0, 0, Add_Players_Height)))
     Players[I,entity]:plyNoclip(1)
+    #ifdef entity:plyStripWeapons()
     Players[I,entity]:plyStripWeapons()
+    #endif
     if (Players[I,entity] != owner()) {
         owner():sendMessageColor(vec(255,0 ,0), GameSuffix + " ", teamColor(players()[I,entity]:team()), Players[I,entity]:name(), vec(255), Join_Game_MSG )
     }
@@ -478,7 +480,9 @@ function void day_up_break_news(Role:number, Message:string)
             Players[Y,entity]:plyGod(0)
             Players[Y,entity]:dmgApplyDamage(10^10)
             Players[Y,entity] = noentity()
+            #ifdef entity:particleAttach(string)
             Prop_Base[Y,entity]:particleAttach("drg_wrenchmotron_teleport")
+            #endif
             Prop_Base[Y,entity]:soundPlay(Y, 5, "ambient/levels/labs/electric_explosion4.wav")
             Player_Alive_Status[Y,string] = "none"
             Role_Players_Contain_Count[Player_Role[find_player_id_from_entity(Players[Y,entity]), number] ,number] = Role_Players_Contain_Count[Player_Role[find_player_id_from_entity(Players[Y,entity]), number] ,number] - 1
@@ -491,7 +495,9 @@ function void day_up_break_news(Role:number, Message:string)
             Players[Y,entity]:dmgApplyDamage(10^10)
             Players[Y,entity] = noentity()
             Player_Alive_Status[Y,string] = "none"
+            #ifdef entity:particleAttach(string)
             Prop_Base[Y,entity]:particleAttach("drg_wrenchmotron_teleport")
+            #endif
             Prop_Base[Y,entity]:soundPlay(Y, 5, "ambient/levels/labs/electric_explosion4.wav")
             Role_Players_Contain_Count[Player_Role[find_player_id_from_entity(Players[Y,entity]), number] ,number] = Role_Players_Contain_Count[Player_Role[find_player_id_from_entity(Players[Y,entity]), number] ,number] - 1
 
@@ -506,7 +512,9 @@ function void day_up_break_news(Role:number, Message:string)
             Players[Y,entity]:dmgApplyDamage(10^10)
             Players[Y,entity] = noentity()
             Player_Alive_Status[Y,string] = "none"
+            #ifdef entity:particleAttach(string)
             Prop_Base[Y,entity]:particleAttach("drg_wrenchmotron_teleport")
+            #endif
             Prop_Base[Y,entity]:soundPlay(Y, 5, "ambient/levels/labs/electric_explosion4.wav")
             Role_Players_Contain_Count[Player_Role[find_player_id_from_entity(Players[Y,entity]), number] ,number] = Role_Players_Contain_Count[Player_Role[find_player_id_from_entity(Players[Y,entity]), number] ,number] - 1
         }
@@ -585,9 +593,11 @@ function void terminate_game(Reason:string)
     for (I = 1, Players_Count) {
         Players[I,entity]:sendMessageColor(vec(255,0,0), GameSuffix + " ", vec(255), Reason)
         Players[I,entity]:plyNoclip(0)
+        #ifdef entity:plyStripWeapons()
         Players[I,entity]:plyGive("weapon_physgun")
         Players[I,entity]:plyGive("gmod_camera")
         Players[I,entity]:plyGive("gmod_tool")
+        #endif
     }
     for (I = 1, Prop_Base:count()){
         if (Prop_Base[I,entity]:isValid()){
@@ -764,10 +774,12 @@ if (clk("init_playing_turn"))
         is_game_finished()
         timer("init_night", Time_Left * 1000)
         timer("init_playing_turn", Time_Left * 1000 + 2000)
-        if (Is_Mayor == 0) {
+        if (Is_Mayor == 0 & Game_Finished == 0) {
             send_msg_to_players(Mayor_Election_MSG)
         } else {
-            send_msg_to_players(Kill_Vote_Day_MSG)
+            if (Game_Finished == 0) {
+                send_msg_to_players(Kill_Vote_Day_MSG)
+            }
         }
     } else {
         Time_Left = Vote_Time
