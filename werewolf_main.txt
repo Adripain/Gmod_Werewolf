@@ -180,7 +180,7 @@ function void send_msg_to_role(Role:number, Message:string)
 }
 
 
-function void send_votemsg__to_role(Role:number, Owner_Name:string, Message:string, User_Name:string)
+function void send_votemsg_to_role(Role:number, Owner_Name:string, Message:string, User_Name:string)
 {
     for (I = 1, Players_Count) {
         if (I == Player_Role[Role,number]) {
@@ -189,7 +189,7 @@ function void send_votemsg__to_role(Role:number, Owner_Name:string, Message:stri
     }
 }
 
-function void send_votemsg__to_players(Owner_Name:string, Message:string, User_Name:string)
+function void send_votemsg_to_players(Owner_Name:string, Message:string, User_Name:string)
 {
     for (I = 1, Players_Count) {
             Players[I,entity]:sendMessageColor(vec(255,0,0), GameSuffix + " ", vec(120, 200, 120), Owner_Name, vec(255), Message, vec(120, 200, 120), User_Name)
@@ -210,6 +210,13 @@ function void send_msg_center_to_role(Role:number, Message:string)
                 Players[I,entity]:sendMessageCenter(Message)
 
         }
+    }
+}
+
+function void send_msg_center_to_players(Message:string)
+{
+    for (I = 1, Players_Count) {
+                Players[I,entity]:sendMessageCenter(Message)
     }
 }
 
@@ -238,7 +245,7 @@ function void vote_to_kill(Role:number)
                     holoPos(I + 10, Voted_For[I,entity]:toWorld(vec(0, 0, 70 + I * 10)))
                     holoModel(I + 10, "models/sprops/misc/alphanum/alphanum_arrow_b.mdl")
                     holoAng(I + 10, Prop_Base[find_player_id_from_entity(Players[I,entity]:aimEntity()),entity]:toWorld(ang(0,0,180)))
-                    send_votemsg__to_role(Role,Players[I,entity]:name(), Voted_For_MSG, Players[I,entity]:aimEntity():name())
+                    send_votemsg_to_role(Role,Players[I,entity]:name(), Voted_For_MSG, Players[I,entity]:aimEntity():name())
                     Players_Vote_Count[Players[I,entity]:aimEntity():id(), number] = Players_Vote_Count[Players[I,entity]:aimEntity():id(), number] + 1
                 } else {
                     if (Has_Voted[I,number] == 1) {
@@ -254,7 +261,7 @@ function void vote_to_kill(Role:number)
                             Voted_For[I,entity] = Players[I,entity]:aimEntity()
                             holoPos(I + 10, Voted_For[I,entity]:toWorld(vec(0, 0, 70 + I * 10)))
                             holoAng(I + 10, Prop_Base[find_player_id_from_entity(Players[I,entity]:aimEntity()),entity]:toWorld(ang(0,0,180)))
-                            send_votemsg__to_role(Role,Players[I,entity]:name(), Voted_For_MSG, Players[I,entity]:aimEntity():name())
+                            send_votemsg_to_role(Role,Players[I,entity]:name(), Voted_For_MSG, Players[I,entity]:aimEntity():name())
                             Players_Vote_Count[Players[I,entity]:aimEntity():id(), number] = Players_Vote_Count[Players[I,entity]:aimEntity():id(), number] + 1
                         }
                     }
@@ -292,7 +299,7 @@ function void vote_for_mayor()
                     holoColor(I + 10, Players[I,entity] == Mayor ? vec(255,0,0) : vec(255))
                     holoModel(I + 10, "models/sprops/misc/alphanum/alphanum_arrow_b.mdl")
                     holoAng(I + 10, Prop_Base[find_player_id_from_entity(Players[I,entity]:aimEntity()),entity]:toWorld(ang(0,0,180)))
-                    send_votemsg__to_players(Players[I,entity]:name(), Voted_For_MSG, Players[I,entity]:aimEntity():name())
+                    send_votemsg_to_players(Players[I,entity]:name(), Voted_For_MSG, Players[I,entity]:aimEntity():name())
                     if (Players[I,entity] == Mayor) {
                         Players_Vote_Count[Players[I,entity]:aimEntity():id(), number] = Players_Vote_Count[Players[I,entity]:aimEntity():id(), number] + 2
                     } else {
@@ -319,7 +326,7 @@ function void vote_for_mayor()
                             holoPos(I + 10, Voted_For[I,entity]:toWorld(vec(0, 0, 70 + I * 10)))
                             holoAng(I + 10, Prop_Base[find_player_id_from_entity(Players[I,entity]:aimEntity()),entity]:toWorld(ang(0,0,180)))
                             holoColor(I + 10, Players[I,entity] == Mayor ? vec(255,0,0) : vec(255))
-                            send_votemsg__to_players(Players[I,entity]:name(), Voted_For_MSG, Players[I,entity]:aimEntity():name())
+                            send_votemsg_to_players(Players[I,entity]:name(), Voted_For_MSG, Players[I,entity]:aimEntity():name())
                             if (Players[I,entity] == Mayor) {
                                 Players_Vote_Count[Players[I,entity]:aimEntity():id(), number] = Players_Vote_Count[Players[I,entity]:aimEntity():id(), number] + 2
                             } else {
@@ -705,7 +712,7 @@ if(Mode == 2)
     }
     if (Game_Status == "day" & Game_Finished == 0) {
         Time_Left -= Interval_Timer / 1000
-        send_msg_center_to_role(Actual_Role_Playing, floor(Time_Left):toString())
+        send_msg_center_to_players(Actual_Role_Playing, floor(Time_Left):toString())
         if (Is_Mayor == 0) {
             vote_for_mayor()
             if (Time_Left <= 1) {
