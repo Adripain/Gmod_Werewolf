@@ -1,5 +1,5 @@
 @name werewolf_roles
-@persist [Roles_Name Role_Assignment_Priority Role_Exist Role_Max_Count Roles_Act Roles_Job Roles_Color Role_Run_Order Role_Players_Contain_Count]:table
+@persist [Roles_Name Role_Assignment_Priority Role_Exist Role_Max_Count Roles_Act Roles_Job Roles_Color Role_Run_Order Role_Players_Contain_Count Roles_Turn_Mess]:table
 @persist Total_Role_Count:number
 
 if(first() | dupefinished())
@@ -11,20 +11,22 @@ if(first() | dupefinished())
     Role_Exist[I, number] = 1                  #Define if the role is on the game
     Role_Assignment_Priority[I, number] = 2    #Define the order of assignation priority
     Role_Run_Order[I, number] = 4              #Define the run order of each role
-    Role_Max_Count[I, number] = 2              #Define maximum of players could get this role
+    Role_Max_Count[I, number] = 1              #Define maximum of players could get this role
     Roles_Act[I, string] = WereWolf_ACT
     Roles_Job[I, string] = "During the night you gather to vote who will be eliminated. During the day you must not be unmasked."
+    Roles_Turn_Mess[I, string] = WereWolf_TM
     Roles_Color[I, vector] = vec(255, 0, 0)
     Role_Players_Contain_Count[I,number] = 0 #Do not touch
  
     I = 2
     Roles_Name[I, string] = Villager_NAME      #Name of the Role Villagers
-    Role_Exist[I, number] = 0                  #Define if the role is on the game
+    Role_Exist[I, number] = 1                  #Define if the role is on the game
     Role_Assignment_Priority[I, number] = 1    #Define the order of assignation priority
     Role_Run_Order[I, number] = 1              #Define the run order of each role
     Role_Max_Count[I, number] = 1              #Define maximum of players could get this role
     Roles_Act[I, string] = Villager_ACT
     Roles_Job[I, string] = "Your words is your only power of persuasion to eliminate the Werewolves. You must remain on the lookout for clues, and identify the culprits."
+    Roles_Turn_Mess[I, string] = Villager_TM
     Roles_Color[I, vector] = vec(120, 200, 120)
     Role_Players_Contain_Count[I,number] = 0 #Do not touch
     
@@ -36,6 +38,7 @@ if(first() | dupefinished())
     Role_Max_Count[I, number] = 1              #Define maximum of players could get this role
     Roles_Act[I, string] = Witch_ACT
     Roles_Job[I, string] = "You wakes up every night and can use one of her two potions: heal the victim of the Werewolves, or kill someone."
+    Roles_Turn_Mess[I, string] = Witch_TM
     Roles_Color[I, vector] = vec(170, 0, 255)
     Role_Players_Contain_Count[I,number] = 0 #Do not touch
 
@@ -47,39 +50,43 @@ if(first() | dupefinished())
     Role_Max_Count[I, number] = 1              #Define maximum of players could get this role
     Roles_Act[I, string] = Seer_ACT
     Roles_Job[I, string] = "Each night you can know the role of a player you have chosen. You must help the villagers without being unmasked."
+    Roles_Turn_Mess[I, string] = Seer_TM
     Roles_Color[I, vector] = vec(120, 200, 120)
     Role_Players_Contain_Count[I,number] = 0 #Do not touch
     
     I = 5
     Roles_Name[I, string] = Cupidon_NAME       #Name of the Role Cupidon
-    Role_Exist[I, number] = 1                  #Define if the role is on the game
+    Role_Exist[I, number] = 0                  #Define if the role is on the game
     Role_Assignment_Priority[I, number] = 5    #Define the order of assignation priority
     Role_Run_Order[I, number] = 2              #Define the run order of each role
     Role_Max_Count[I, number] = 1              #Define maximum of players could get this role
     Roles_Act[I, string] = Cupidon_ACT
     Roles_Job[I, string] = "The first night, you designates two lovers. If one dies, the other will follow him to his grave."
+    Roles_Turn_Mess[I, string] = Cupidon_TM
     Roles_Color[I, vector] = vec(120, 200, 120)
     Role_Players_Contain_Count[I,number] = 0 #Do not touch
     
     I = 6
     Roles_Name[I, string] = Hunter_NAME        #Name of the Role Hunter
-    Role_Exist[I, number] = 1                  #Define if the role is on the game
+    Role_Exist[I, number] = 0                  #Define if the role is on the game
     Role_Assignment_Priority[I, number] = 6    #Define the order of assignation priority
     Role_Run_Order[I, number] = 0              #Define the run order of each role
     Role_Max_Count[I, number] = 1              #Define maximum of players could get this role
     Roles_Act[I, string] = Hunter_ACT
     Roles_Job[I, string] = "When you dies you have the power to bring another player with him to his grave."
+    Roles_Turn_Mess[I, string] = Hunter_TM
     Roles_Color[I, vector] = vec(120, 200, 120)
     Role_Players_Contain_Count[I,number] = 0 #Do not touch
     
     I = 7
     Roles_Name[I, string] = Thief_NAME         #Name of the Role Thief
-    Role_Exist[I, number] = 1                  #Define if the role is on the game
+    Role_Exist[I, number] = 0                  #Define if the role is on the game
     Role_Assignment_Priority[I, number] = 7    #Define the order of assignation priority
     Role_Run_Order[I, number] = 1              #Define the run order of each role
     Role_Max_Count[I, number] = 1              #Define maximum of players could get this role
     Roles_Act[I, string] = Thief_ACT
     Roles_Job[I, string] = "When the game starts you have the power to steal one player's card"
+    Roles_Turn_Mess[I, string] = Thief_TM
     Roles_Color[I, vector] = vec(120, 200, 120)
     Role_Players_Contain_Count[I,number] = 0 #Do not touch
     
@@ -91,18 +98,20 @@ if(first() | dupefinished())
     Role_Max_Count[I, number] = 1                           #Define maximum of players could get this role
     Roles_Act[I, string] = Little_Girl_ACT
     Roles_Job[I, string] = "You get up at night when the Werewolves are chosen to spy on their exchanges."
+    Roles_Turn_Mess[I, string] = Little_Girl_TM
     Roles_Color[I, vector] = vec(120, 200, 120)
     Role_Players_Contain_Count[I,number] = 0 #Do not touch
     
     # CUSTOM ROLES #
     I = 9
     Roles_Name[I, string] = Raven_NAME        #Name of the Role Raven
-    Role_Exist[I, number] = 0                 #Define if the role is on the game
+    Role_Exist[I, number] = 1                 #Define if the role is on the game
     Role_Assignment_Priority[I, number] = 9   #Define the order of assignation priority
     Role_Run_Order[I, number] = 5             #Define the run order of each role
     Role_Max_Count[I, number] = 1             #Define maximum of players could get this role
     Roles_Act[I, string] = Raven_ACT
     Roles_Job[I, string] = "You can double vote to kill someone overnight"
+    Roles_Turn_Mess[I, string] = Raven_TM
     Roles_Color[I, vector] = vec(120, 200, 120)
     Role_Players_Contain_Count[I,number] = 0 #Do not touch
 
@@ -114,6 +123,7 @@ if(first() | dupefinished())
     Role_Max_Count[I, number] = 1              #Define maximum of players could get this role
     Roles_Act[I, string] = Guard_ACT
     Roles_Job[I, string] = "Each night, you can protect a different player against a Werewolf attack."
+    Roles_Turn_Mess[I, string] = Guard_TM
     Roles_Color[I, vector] = vec(120, 120, 200)
     Role_Players_Contain_Count[I,number] = 0 #Do not touch
     
@@ -125,6 +135,7 @@ if(first() | dupefinished())
     Role_Max_Count[I, number] = 1                           #Define maximum of players could get this role
     Roles_Act[I, string] = White_Wolf_ACT
     Roles_Job[I, string] = "You wakes up at night with the other Werewolves who believe him to be an ally. Every other night, you can devour another player of his choice."
+    Roles_Turn_Mess[I, string] = White_Wolf_TM
     Roles_Color[I, vector] = vec(170, 0, 255)
     Role_Players_Contain_Count[I,number] = 0 #Do not touch
     
@@ -136,6 +147,7 @@ if(first() | dupefinished())
     Role_Max_Count[I, number] = 1                           #Define maximum of players could get this role
     Roles_Act[I, string] = Black_Wolf_ACT
     Roles_Job[I, string] = "During the night he wakes up with the other Werewolves. Once in the game, he can infect their victim in Werewolf."
+    Roles_Turn_Mess[I, string] = Black_Wolf_TM
     Roles_Color[I, vector] = vec(255)
     Role_Players_Contain_Count[I,number] = 0 #Do not touch
     
@@ -147,6 +159,7 @@ if(first() | dupefinished())
     Role_Max_Count[I, number] = 1                           #Define maximum of players could get this role
     Roles_Act[I, string] = Mayor_ACT
     Roles_Job[I, string] = "During the night he wakes up with the other Werewolves. Once in the game, he can infect their victim in Werewolf."
+    Roles_Turn_Mess[I, string] = Mayor_TM
     Roles_Color[I, vector] = vec(255)
     Role_Players_Contain_Count[I,number] = 0 #Do not touch
     
