@@ -1,5 +1,5 @@
 # werewolf
-A garry's mod werewolf game using e2
+just a garry's mod werewolf game using e2
 
 Tree setup
 
