@@ -698,7 +698,7 @@ if (clk("init_night"))
     Eyes_Scroll_Status = 0
     Game_Status = "night"
     Nights_Count += 1
-    holoAlpha(1, 200)
+    set_night_ambiance()
 }
 
 if (clk("init_playing_turn"))
@@ -723,7 +723,7 @@ if (clk("init_playing_turn"))
     #print("Role turn : " + Roles_Name[Actual_Role_Playing, string] + Actual_Role_Playing)
     if (Actual_Turn == 0 & Game_Finished == 0) {
         Game_Status = "day"
-        holoAlpha(1, 0)
+        set_day_ambiance()
         Time_Left = Vote_Day_Time
         send_msg_to_players(Day_Up_MSG)
         day_up_break_news(Actual_Role_Playing, Day_Up_MSG)

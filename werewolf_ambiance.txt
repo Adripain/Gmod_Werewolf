@@ -22,3 +22,17 @@ function void create_holograms_ambiance()
     holoDisableShading(Index, 1)
     holoAlpha(Index, 0)
 }
+
+function void set_night_ambiance()
+{
+    local Alpha = 200
+    holoAlpha(1, Alpha)
+    holoAlpha(2, Alpha)
+}
+
+function void set_day_ambiance()
+{
+    local Alpha = 0
+    holoAlpha(1, Alpha)
+    holoAlpha(2, Alpha)
+}
