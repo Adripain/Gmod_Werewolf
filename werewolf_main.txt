@@ -712,7 +712,7 @@ if(Mode == 2)
     }
     if (Game_Status == "day" & Game_Finished == 0) {
         Time_Left -= Interval_Timer / 1000
-        send_msg_center_to_players(Actual_Role_Playing, floor(Time_Left):toString())
+        send_msg_center_to_players(floor(Time_Left):toString())
         if (Is_Mayor == 0) {
             vote_for_mayor()
             if (Time_Left <= 1) {
