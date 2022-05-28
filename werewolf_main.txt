@@ -1,0 +1,767 @@
+@name [A] - Werewolves
+@inputs 
+@outputs Players:array Players_Count:number Time_Left Actual_Role_Playing Got_Votes_On:table
+
+# Game Datas #
+@persist E:entity
+@persist [Players Prop_Base Player_Role]:array
+@persist [Mode Players_Count Eyes_Scroll_Status Actual_Role_Playing Actual_Turn Nights_Count Is_Mayor Vote_Time Vote_Day_Time Game_Finished]:number
+@persist [Revive_Potion Kill_Potion]:number
+@persist Game_Status:string
+@persist [Players_Vote_Count Has_Voted Got_Votes_On Voted_For Player_Alive_Status Player_Id_To_Player_GameId Couple Can_Vote_Toogle]:table
+@persist Time_Left
+@persist Mayor:entity RavenVictim:entity
+
+##############
+
+# Configuration Vars #
+@persist [Max_Players Interval_Timer]:number
+@persist [Player_Join_Successfully_Sound Player_Join_Denied_Sound]:string
+@persist [Join_CMD Start_CMD]:string
+######################
+
+@trigger all
+@model models/props_c17/SuitCase001a.mdl
+
+if (first() | dupefinished()){
+    
+    runOnTick(0)
+    runOnChat(1)
+    
+    ## CONFIGURATION ##
+    Max_Players = 10 #You can increase this number to 24
+    
+    #include "werewolf/werewolf_roles"
+    #include "werewolf/werewolf_role_playing_order"
+    #include "werewolf/werewolf_languages"
+    
+    Mode = 1                #Do not touch
+    Players_Count = 0       #Do not touch
+    Eyes_Scroll_Status = 0  #Do not touch
+    Game_Status = "day"     #Do not touch
+    Nights_Count = 0        #Do not touch
+    Revive_Potion = 1
+    Kill_Potion = 1
+    Actual_Turn = 0
+    Game_Finished = 0
+    Is_Mayor = 0
+    Vote_Time = 30          #In seconds
+    Vote_Day_Time = 45      #In seconds
+    Interval_Timer = 30
+    
+    E = entity()
+    RavenVictim = noentity()#Do not touch
+    
+    ## SOUNDS ##
+    Player_Join_Successfully_Sound = "buttons/blip2.wav"
+    Player_Join_Denied_Sound = "buttons/weapon_cant_buy.wav"
+    
+    ## COMMANDES ##
+    Join_CMD = "!join"
+    Start_CMD = "!start"
+    
+    local Index = 1
+    holoCreate(Index)
+    holoModel(Index, "models/props_phx/ball.mdl")
+    holoPos(Index, entity():toWorld(vec(0,0,Max_Players * 2 * 25)))
+    holoAng(Index, entity():toWorld(ang(0,0,0)))
+    holoColor(Index, vec(0,0,20))
+    holoScale(Index, vec(-Max_Players * 2.5))
+    holoDisableShading(Index, 1)
+    holoAlpha(Index,0)
+    
+    Index++
+    holoCreate(Index)
+    holoModel(Index, "models/hunter/tubes/circle2x2.mdl")
+    holoPos(Index, entity():toWorld(vec(0,0,-10)))
+    holoAng(Index, entity():toWorld(ang(0,0,0)))
+    holoColor(Index, vec(0,0,20))
+    holoScale(Index, vec(Max_Players * 1.1,Max_Players * 1.1,1))
+    holoDisableShading(Index, 1)
+    holoAlpha(Index,0)
+}
+
+function void spawn_new_base(Players_Count:number)
+{
+    local Circle_Scale = Max_Players * 25
+    local Prop_Height = 5
+    local VecSpawn = E:toWorld(vec(sin(Players_Count*360/Max_Players) * Circle_Scale, cos(Players_Count*360/Max_Players) * Circle_Scale, Prop_Height))
+    local AngSpawn = E:toWorld(ang(0, (Players_Count / Max_Players) * 360, 0))
+
+    Prop_Base[Players_Count, entity] = propSpawn("models/hunter/blocks/cube05x05x025.mdl", VecSpawn, -AngSpawn, 1)
+}
+
+function void add_new_player(I:number)
+{
+    local Add_Players_Height = 12
+    Players_Count += 1
+    Players[Players_Count,entity] = players()[I,entity]
+
+    spawn_new_base(Players_Count)
+    Players[I,entity]:sendMessageColor(vec(255,0,0), GameSuffix + " ", vec(255), Join_MSG, teamColor(players()[I,entity]:team()), players()[I,entity]:name(), vec(255), ".")
+    Prop_Base[Players_Count, entity]:soundPlay(I, 0, Player_Join_Successfully_Sound)
+    Players[I,entity]:plySetPos(Prop_Base[Players_Count, entity]:toWorld(vec(0, 0, Add_Players_Height)))
+    Players[I,entity]:plyNoclip(1)
+    Players[I,entity]:plyStripWeapons()
+    if (Players[I,entity] != owner()) {
+        owner():sendMessageColor(vec(255,0 ,0), GameSuffix + " ", teamColor(players()[I,entity]:team()), Players[I,entity]:name(), vec(255), Join_Game_MSG )
+    }
+}
+
+function number all_roles_assignated()
+{
+    for (I = 1, Players_Count) {
+        if (Player_Role[I, number] == 0) {
+            return 0
+        }
+    }
+    return 1
+}
+
+function number find_role_priority(Priority_Looking_For:number)
+{
+    for (I = 1, Total_Role_Count) {
+        if (Role_Assignment_Priority[I, number] == Priority_Looking_For) {
+            return I
+        }
+    }
+    return 1
+}
+
+function void role_assignation()
+{
+    local Asignation_Role_Priority = 1
+    local Asignation_Role = 1
+
+    while (all_roles_assignated() == 0) {
+        local Find_Random_Player = randint(1, Players_Count)
+        if (Player_Role[Find_Random_Player, number] == 0) {
+            if (Role_Exist[find_role_priority(Asignation_Role_Priority), number] == 1) {
+                Player_Role[Find_Random_Player, number] = find_role_priority(Asignation_Role_Priority)
+                Role_Players_Contain_Count[Player_Role[Find_Random_Player, number],number] = Role_Players_Contain_Count[Player_Role[Find_Random_Player, number],number] + 1
+                Player_Id_To_Player_GameId[Players[Find_Random_Player,entity]:id(),number] = Find_Random_Player
+                Player_Alive_Status[Find_Random_Player,string] = "alive"
+            }
+            Asignation_Role += 1
+            if (Asignation_Role >= Role_Max_Count[find_role_priority(Asignation_Role_Priority), number]) {
+                Asignation_Role = 0
+                Asignation_Role_Priority += 1
+            }
+        }
+    }
+}
+
+function void reset_roles()
+{
+    for (I = 1, Players_Count) {
+        Player_Role[I, number] = 0
+    }
+}
+
+function void say_players_roles()
+{
+    for (I = 1, Players_Count) {
+        Players[I,entity]:sendMessageColor(vec(255,0,0), GameSuffix + " ", vec(255), Your_Role_Is_MSG, Roles_Color[Player_Role[I,number], vector], Roles_Name[Player_Role[I,number], string])
+        Players[I,entity]:sendMessageCenter(Roles_Job[Player_Role[I,number], string])
+    }
+}
+
+function void scroll_eyes_down()
+{
+    if ( Eyes_Scroll_Status < 1) {
+        Eyes_Scroll_Status += 0.01
+    }
+    for (I = 1, Players_Count) {
+        if (Actual_Role_Playing != Player_Role[I,number]) {
+            local Start_Ang = Players[I,entity]:eyeAngles()
+            local End_Ang = ang(Eyes_Scroll_Status * 90, Players[I,entity]:eyeAngles():yaw(), 0)
+            Players[I,entity]:plySetAng(mix(Start_Ang, End_Ang, Eyes_Scroll_Status))
+            if (Eyes_Scroll_Status >= 0.9) {
+                Players[I,entity]:plySetAng(ang(90,Players[I,entity]:eyeAngles():yaw(),0))
+            }
+        }
+    }
+}
+
+
+function void send_msg_to_role(Role:number, Message:string)
+{
+    for (I = 1, Players_Count) {
+        if (Player_Role[I,number] == Role) {
+                Players[I,entity]:sendMessageColor(vec(255,0,0), GameSuffix + " ", vec(255), Message)
+        }
+    }
+}
+
+
+function void send_votemsg__to_role(Role:number, Owner_Name:string, Message:string, User_Name:string)
+{
+    for (I = 1, Players_Count) {
+        if (I == Player_Role[Role,number]) {
+                Players[I,entity]:sendMessageColor(vec(255,0,0), GameSuffix + " ", vec(120, 200, 120), Owner_Name, vec(255), Message, vec(120, 200, 120), User_Name)
+        }
+    }
+}
+
+function void send_votemsg__to_players(Owner_Name:string, Message:string, User_Name:string)
+{
+    for (I = 1, Players_Count) {
+            Players[I,entity]:sendMessageColor(vec(255,0,0), GameSuffix + " ", vec(120, 200, 120), Owner_Name, vec(255), Message, vec(120, 200, 120), User_Name)
+    }
+}
+
+function void send_msg_to_players(Message:string)
+{
+    for (I = 1, Players_Count) {
+        Players[I,entity]:sendMessageColor(vec(255,0,0), GameSuffix + " ", vec(255), Message)
+    }
+}
+
+function void send_msg_center_to_role(Role:number, Message:string)
+{
+    for (I = 1, Players_Count) {
+        if (I == Player_Role[Role,number]) {
+                Players[I,entity]:sendMessageCenter(Message)
+
+        }
+    }
+}
+
+function number find_player_id_from_entity(Ply:entity)
+{
+    for (I = 1, Total_Role_Count) {
+        if (Players[I, entity] == Ply) {
+            return I
+        }
+    }
+    return 0
+}
+
+function void vote_to_kill(Role:number)
+{
+    runOnKeys(Players, 1)
+
+    for (I = 1, Players_Count) {
+        if (I == Player_Role[Role,number]) {
+            if (changed(Players[I,entity]:keyAttack1()) & Players[I,entity]:keyAttack1() & Players[I,entity]:aimEntity():isPlayer()) {
+                if (Has_Voted[I,number] == 0) {
+                    Has_Voted[I,number] = 1
+                    Voted_For[I,entity] = Players[I,entity]:aimEntity()
+                    Got_Votes_On[find_player_id_from_entity(Players[I,entity]:aimEntity()),number] = Got_Votes_On[find_player_id_from_entity(Players[I,entity]:aimEntity()),number] + 1
+                    holoCreate(I + 10)
+                    holoPos(I + 10, Voted_For[I,entity]:toWorld(vec(0, 0, 60 + I * 10)))
+                    holoModel(I + 10, "models/sprops/misc/alphanum/alphanum_arrow_b.mdl")
+                    holoAng(I + 10, Prop_Base[find_player_id_from_entity(Players[I,entity]:aimEntity()),entity]:toWorld(ang(0,0,180)))
+                    send_votemsg__to_role(Role,Players[I,entity]:name(), Voted_For_MSG, Players[I,entity]:aimEntity():name())
+                    Players_Vote_Count[Players[I,entity]:aimEntity():id(), number] = Players_Vote_Count[Players[I,entity]:aimEntity():id(), number] + 1
+                } else {
+                    if (Has_Voted[I,number] == 1) {
+                        if (Voted_For[I,entity] == Players[I,entity]:aimEntity()) {
+                            Has_Voted[I,number] = 0
+                            Voted_For[I,entity] = Players[I,entity]:aimEntity()
+                            holoPos(I + 10, Voted_For[I,entity]:toWorld(vec(0, 0, -500 + I * 10)))
+                            Got_Votes_On[find_player_id_from_entity(Players[I,entity]:aimEntity()),number] = Got_Votes_On[find_player_id_from_entity(Players[I,entity]:aimEntity()),number] - 1
+                            send_msg_to_role(Role,Players[I,entity]:name() + Canceled_Vote_MSG)
+                            Players_Vote_Count[Players[I,entity]:aimEntity():id(), number] = Players_Vote_Count[Players[I,entity]:aimEntity():id(), number] - 1
+                        }
+                        if (Voted_For[I,entity] != Players[I,entity]:aimEntity()) {
+                            Voted_For[I,entity] = Players[I,entity]:aimEntity()
+                            holoPos(I + 10, Voted_For[I,entity]:toWorld(vec(0, 0, 60 + I * 10)))
+                            holoAng(I + 10, Prop_Base[find_player_id_from_entity(Players[I,entity]:aimEntity()),entity]:toWorld(ang(0,0,180)))
+                            send_votemsg__to_role(Role,Players[I,entity]:name(), Voted_For_MSG, Players[I,entity]:aimEntity():name())
+                            Players_Vote_Count[Players[I,entity]:aimEntity():id(), number] = Players_Vote_Count[Players[I,entity]:aimEntity():id(), number] + 1
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+function void vote_for_mayor()
+{
+    runOnKeys(Players, 1)
+
+    for (I = 1, Players_Count) {
+        if (Player_Alive_Status[I,string] == "alive") {
+            if (changed(Players[I,entity]:keyAttack1()) & Players[I,entity]:keyAttack1() & Players[I,entity]:aimEntity():isPlayer()) {
+                if (Has_Voted[I,number] == 0 & Can_Vote_Toogle[I, number] == 1) {
+                    Has_Voted[I,number] = 1
+                    Voted_For[I,entity] = Players[I,entity]:aimEntity()
+                    Got_Votes_On[find_player_id_from_entity(Players[I,entity]:aimEntity()),number] = Got_Votes_On[find_player_id_from_entity(Players[I,entity]:aimEntity()),number] + 1
+                    holoCreate(I + 10)
+                    holoPos(I + 10, Voted_For[I,entity]:toWorld(vec(0, 0, 60 + I * 10)))
+                    holoColor(I + 10, Players[I,entity] == Mayor ? vec(255,0,0) : vec(255))
+                    holoModel(I + 10, "models/sprops/misc/alphanum/alphanum_arrow_b.mdl")
+                    holoAng(I + 10, Prop_Base[find_player_id_from_entity(Players[I,entity]:aimEntity()),entity]:toWorld(ang(0,0,180)))
+                    send_votemsg__to_players(Players[I,entity]:name(), Voted_For_MSG, Players[I,entity]:aimEntity():name())
+                    if (Players[I,entity] == Mayor) {
+                        Players_Vote_Count[Players[I,entity]:aimEntity():id(), number] = Players_Vote_Count[Players[I,entity]:aimEntity():id(), number] + 2
+                    } else {
+                        Players_Vote_Count[Players[I,entity]:aimEntity():id(), number] = Players_Vote_Count[Players[I,entity]:aimEntity():id(), number] + 1
+                    }
+                    Can_Vote_Toogle[I, number] = 0
+                } else {
+                    if (Has_Voted[I,number] == 1 & Can_Vote_Toogle[I, number] == 1) {
+                        if (Voted_For[I,entity] == Players[I,entity]:aimEntity()) {
+                            Has_Voted[I,number] = 0
+                            Voted_For[I,entity] = Players[I,entity]:aimEntity()
+                            holoPos(I + 10, Voted_For[I,entity]:toWorld(vec(0, 0, -500 + I * 10)))
+                            Got_Votes_On[find_player_id_from_entity(Players[I,entity]:aimEntity()),number] = Got_Votes_On[find_player_id_from_entity(Players[I,entity]:aimEntity()),number] - 1
+                            send_msg_to_players(Players[I,entity]:name() + Canceled_Vote_MSG)
+                            if (Players[I,entity] == Mayor) {
+                                Players_Vote_Count[Players[I,entity]:aimEntity():id(), number] = Players_Vote_Count[Players[I,entity]:aimEntity():id(), number] - 2
+                            } else {
+                                Players_Vote_Count[Players[I,entity]:aimEntity():id(), number] = Players_Vote_Count[Players[I,entity]:aimEntity():id(), number] - 1
+                            }
+                            Can_Vote_Toogle[I, number] = 0
+                        }
+                        if (Voted_For[I,entity] != Players[I,entity]:aimEntity() & Can_Vote_Toogle[I, number] == 1) {
+                            Voted_For[I,entity] = Players[I,entity]:aimEntity()
+                            holoPos(I + 10, Voted_For[I,entity]:toWorld(vec(0, 0, 60 + I * 10)))
+                            holoAng(I + 10, Prop_Base[find_player_id_from_entity(Players[I,entity]:aimEntity()),entity]:toWorld(ang(0,0,180)))
+                            holoColor(I + 10, Players[I,entity] == Mayor ? vec(255,0,0) : vec(255))
+                            send_votemsg__to_players(Players[I,entity]:name(), Voted_For_MSG, Players[I,entity]:aimEntity():name())
+                            if (Players[I,entity] == Mayor) {
+                                Players_Vote_Count[Players[I,entity]:aimEntity():id(), number] = Players_Vote_Count[Players[I,entity]:aimEntity():id(), number] + 2
+                            } else {
+                                Players_Vote_Count[Players[I,entity]:aimEntity():id(), number] = Players_Vote_Count[Players[I,entity]:aimEntity():id(), number] + 1
+                            }
+                        }
+                    }
+                }
+            }
+            if (Players[I,entity]:keyAttack1() == 0) {
+                Can_Vote_Toogle[I, number] = 1
+            }
+        }
+    }
+}
+
+function void seer(Role:number)
+{
+    runOnKeys(Players, 1)
+    for (I = 1, Players_Count) {
+        if (Player_Role[I,number] == Role) {
+            if (changed(Players[I,entity]:keyAttack1()) & Players[I,entity]:keyAttack1() & Players[I,entity]:aimEntity():isPlayer()) {
+                local Found_Color = Roles_Color[Player_Role[Player_Id_To_Player_GameId[Players[I,entity]:aimEntity():id(), number], number], vector]
+                local Found_Role = Roles_Name[Player_Role[Player_Id_To_Player_GameId[Players[I,entity]:aimEntity():id(), number], number], string]
+                Players[I,entity]:sendMessageColor(vec(255,0,0), GameSuffix + " ",vec(255), He_Her_Is_MSG, Found_Color, Found_Role)
+                Time_Left = 1
+            }
+        }
+    }
+}
+
+function void cupidon(Role:number)
+{
+    runOnKeys(Players, 1)
+    for (I = 1, Players_Count) {
+        if (Player_Role[I,number] == Role) {
+            if (changed(Players[I,entity]:keyAttack1()) & Players[I,entity]:keyAttack1() & Players[I,entity]:aimEntity():isPlayer() & Couple[1,entity] == noentity()) {
+                Couple[1,entity] = Players[I,entity]:aimEntity()
+                Players[I,entity]:sendMessageColor(vec(255,0,0), GameSuffix + " ",vec(255), You_Selected_MSG, vec(120, 200, 120), Players[I,entity]:aimEntity():name())
+            }
+            if (changed(Players[I,entity]:keyAttack1()) & Players[I,entity]:keyAttack1() & Players[I,entity]:aimEntity():isPlayer() & Couple[1,entity] != noentity() & Couple[1,entity]!=Players[I,entity]:aimEntity()) {
+                Couple[2,entity] = Players[I,entity]:aimEntity()
+                Players[I,entity]:sendMessageColor(vec(255,0,0), GameSuffix + " ", vec(120, 200, 120), Couple[1,entity]:name(), vec(255), " and ", vec(120, 200, 120), Couple[2,entity]:name(), vec(255), " are now in relationship")
+                local CoupleColorP1 = Roles_Color[Player_Role[find_player_id_from_entity(Couple[1,entity]), number], vector]
+                local CoupleRole1 = Roles_Name[Player_Role[find_player_id_from_entity(Couple[1,entity]), number], string]
+                local CoupleColorP2 = Roles_Color[Player_Role[find_player_id_from_entity(Couple[2,entity]), number], vector]
+                local CoupleRole2 = Roles_Name[Player_Role[find_player_id_from_entity(Couple[2,entity]), number], string]
+                Couple[1,entity]:sendMessageColor(vec(255,0,0), GameSuffix + " ", vec(255), In_Couple_With_MSG, CoupleColorP2, Couple[2,entity]:name() + " (" + CoupleRole2 + ") !")
+                Couple[2,entity]:sendMessageColor(vec(255,0,0), GameSuffix + " ", vec(255), In_Couple_With_MSG, CoupleColorP1, Couple[1,entity]:name() + " (" + CoupleRole1 + ") !")
+                Time_Left = 1
+            }
+        }
+    }
+}
+
+function void witch(Role:number)
+{
+    runOnKeys(Players, 1)
+    
+    for (I = 1, Players_Count) {
+        if (Player_Role[I,number] == Role) {
+            if (changed(Players[I,entity]:keyAttack1()) & Players[I,entity]:keyAttack1() & Players[I,entity]:aimEntity():isPlayer() & Revive_Potion == 1) {
+                if (Player_Alive_Status[Player_Id_To_Player_GameId[Players[I,entity]:aimEntity():id(), number], string] == "dead") {
+                    Player_Alive_Status[Player_Id_To_Player_GameId[Players[I,entity]:aimEntity():id(), number], string] = "alive"
+                    send_msg_to_role(Role, Revived_MSG)
+                    Time_Left = 0
+                    Revive_Potion = 0
+                }
+                if (Player_Alive_Status[Player_Id_To_Player_GameId[Players[I,entity]:aimEntity():id(), number], string] == "alive") {
+                    send_msg_to_role(Role, Already_Alive_MSG)
+                }
+            }
+            if (changed(Players[I,entity]:keyAttack1()) & Players[I,entity]:keyAttack1() & Players[I,entity]:aimEntity():isPlayer() & Revive_Potion == 1) {
+                send_msg_to_role(Role, Potion_Already_Used_MSG)
+            }
+            if (changed(Players[I,entity]:keyAttack2()) & Players[I,entity]:keyAttack2() & Players[I,entity]:aimEntity():isPlayer() & Kill_Potion == 1) {
+                Player_Alive_Status[Player_Id_To_Player_GameId[Players[I,entity]:aimEntity():id(), number], string] = "dead"
+                Players[I,entity]:sendMessageColor(vec(255,0,0), GameSuffix + " ",vec(255), Kill_Potion_Used_MSG, vec(120, 200, 120), Players[I,entity]:name())
+                Time_Left = 0
+                Kill_Potion = 0
+            }
+            if (changed(Players[I,entity]:keyAttack2()) & Players[I,entity]:keyAttack2() & Players[I,entity]:aimEntity():isPlayer() & Kill_Potion == 0) {
+                send_msg_to_role(Role, Already_Alive_MSG)
+            }
+        }
+    }
+}
+
+function void witch_advert(Role:number)
+{
+    local Is_Someone_Goings_To_Die = 0
+    for (I = 1, Players_Count) {
+        if (Player_Alive_Status[I,string] == "dead") {
+            Players[I,entity]:sendMessageColor(vec(255,0,0), GameSuffix + " ", vec(120, 200, 120), Players[I,entity]:name(), vec(255), Is_Goin_To_Die_MSG)
+            Is_Someone_Goings_To_Die = 1
+        }
+    }
+    if (Is_Someone_Goings_To_Die == 1) {
+        send_msg_to_role(Role, Potion_Use_MSG)
+    }
+}
+
+
+function void thief(Role:number)
+{
+    runOnKeys(Players, 1)
+    
+    for (I = 1, Players_Count) {
+        if (Player_Role[I,number] == Role) {
+            if (changed(Players[I,entity]:keyAttack1()) & Players[I,entity]:keyAttack1() & Players[I,entity]:aimEntity():isPlayer()) {
+                local Stealer_Id = find_player_id_from_entity(Players[I,entity])
+                local Stealer_Role_Color = Roles_Color[Player_Role[Stealer_Id, number], vector]
+                local Stealer_Role_Name = Roles_Name[Player_Role[Stealer_Id, number], string]
+                local Victim_Id = find_player_id_from_entity(Players[I,entity]:aimEntity())
+                local Victim_Role_Color = Roles_Color[Player_Role[Victim_Id, number], vector]
+                local Victim_Role_Name = Roles_Name[Player_Role[Victim_Id, number], string]
+                Players[I,entity]:sendMessageColor(vec(255,0,0), GameSuffix + " ",vec(255), Steal_Card_MSG, Victim_Role_Color, Victim_Role_Name)
+                Players[I,entity]:aimEntity():sendMessageColor(vec(255,0,0), GameSuffix + " ",vec(255), Steal_Victim_Card_MSG, Stealer_Role_Color, Stealer_Role_Name)
+                local Player_Memo = Players[Stealer_Id,entity]
+                Players[Stealer_Id,entity] = Players[Victim_Id,entity]
+                Players[Victim_Id,entity] = Player_Memo
+                local VictimRole = Player_Role[Stealer_Id, number]
+                Player_Role[Stealer_Id,number] = Player_Role[Victim_Id,number]
+                Player_Role[Victim_Id,number] = VictimRole
+                Time_Left = 1
+            }
+        }
+    }
+}
+
+function void raven(Role:number)
+{
+    runOnKeys(Players, 1)
+    for (I = 1, Players_Count) {
+        if (Player_Role[I,number] == Role) {
+            if (changed(Players[I,entity]:keyAttack1()) & Players[I,entity]:keyAttack1() & Players[I,entity]:aimEntity():isPlayer()) {
+                RavenVictim = Players[I,entity]:aimEntity()
+                Players[I,entity]:sendMessageColor(vec(255,0,0), GameSuffix + " ",vec(120, 200, 120), RavenVictim:name(), vec(255), Two_Votes_Against_MSG)
+                Time_Left = 1
+            }
+
+        }
+    }
+}
+
+
+function void day_up_break_news(Role:number, Message:string)
+{
+    local CoupleColorP1 = Roles_Color[Player_Role[find_player_id_from_entity(Couple[1,entity]), number], vector]
+    local CoupleRole1 = Roles_Name[Player_Role[find_player_id_from_entity(Couple[1,entity]), number], string]
+    local CoupleColorP2 = Roles_Color[Player_Role[find_player_id_from_entity(Couple[2,entity]), number], vector]
+    local CoupleRole2 = Roles_Name[Player_Role[find_player_id_from_entity(Couple[2,entity]), number], string]
+    for (Y = 1, Players_Count) {
+        if (Player_Alive_Status[Y,string] == "none" & find_player_id_from_entity(Couple[1,entity]) == Y & Couple[2,entity] != noentity()) {
+            for (I = 1, Players_Count) {
+                    Players[I,entity]:sendMessageColor(vec(255,0,0), GameSuffix + " ", vec(120, 200, 120), Couple[2,entity], vec(255), Suicide_MSG, CoupleColorP2, CoupleRole2)
+            }
+            Players[Y,entity]:plyGod(0)
+            Players[Y,entity]:dmgApplyDamage(10^10)
+            Players[Y,entity] = noentity()
+            Prop_Base[Y,entity]:particleAttach("drg_wrenchmotron_teleport")
+            Prop_Base[Y,entity]:soundPlay(Y, 5, "ambient/levels/labs/electric_explosion4.wav")
+            Player_Alive_Status[Y,string] = "none"
+        }
+        if (Player_Alive_Status[Y,string] == "none" & find_player_id_from_entity(Couple[2,entity]) == Y & Couple[2,entity] != noentity()) {
+            for (I = 1, Players_Count) {
+                    Players[I,entity]:sendMessageColor(vec(255,0,0), GameSuffix + " ", vec(120, 200, 120), Couple[1,entity], vec(255), Suicide_MSG, CoupleColorP1, CoupleRole1)
+            }
+            Players[Y,entity]:plyGod(0)
+            Players[Y,entity]:dmgApplyDamage(10^10)
+            Players[Y,entity] = noentity()
+            Player_Alive_Status[Y,string] = "none"
+            Prop_Base[Y,entity]:particleAttach("drg_wrenchmotron_teleport")
+            Prop_Base[Y,entity]:soundPlay(Y, 5, "ambient/levels/labs/electric_explosion4.wav")
+        }
+    }
+    for (Y = 1, Players_Count) {
+        if (Player_Alive_Status[Y,string] == "dead") {
+            for (I = 1, Players_Count) {
+                Players[I,entity]:sendMessageColor(vec(255,0,0), GameSuffix + " ", vec(120, 200, 120), Players[Y,entity]:name(), vec(255), Killed_MSG, Roles_Color[Player_Role[Y,number], vector], Roles_Name[Player_Role[Y,number], string])
+            }
+            Players[Y,entity]:plyGod(0)
+            Players[Y,entity]:dmgApplyDamage(10^10)
+            Players[Y,entity] = noentity()
+            Player_Alive_Status[Y,string] = "none"
+            Prop_Base[Y,entity]:particleAttach("drg_wrenchmotron_teleport")
+            Prop_Base[Y,entity]:soundPlay(Y, 5, "ambient/levels/labs/electric_explosion4.wav")
+        }
+    }
+}
+
+function void vote_result(Role:number)
+{
+    local Player_Id_Got_Most_Votes = 0
+    for (I = 1, Players_Count) {
+        if (Got_Votes_On[I,number] > Got_Votes_On[Player_Id_Got_Most_Votes,number]) {
+            Player_Id_Got_Most_Votes = I
+        }
+    }
+    if (Role == 1) {
+        Player_Alive_Status[Player_Id_Got_Most_Votes,string] = "dead"
+    }
+    if (Role == 0 & Is_Mayor == 0) {
+        Mayor = Players[Player_Id_Got_Most_Votes,entity]
+        if (Mayor:isPlayer()) {
+            for (I = 1, Players_Count) {
+                Players[I,entity]:sendMessageColor(vec(255,0,0), GameSuffix + " ", vec(120, 200, 120), Mayor:name(), vec(255), Mayor_Is_MSG)
+            }
+        }
+    }
+    if (Role == 0 & Is_Mayor == 1) {
+        Player_Alive_Status[Player_Id_Got_Most_Votes,string] = "dead"
+    }
+}
+
+function void reset_votes()
+{
+    for (I = 1, Players_Count) {
+        Has_Voted[I,number] = 0
+        Got_Votes_On[I,number] = 0
+        holoDelete(I + 10)
+    }
+}
+
+function number is_playerrole_alive(Role:number)
+{
+    for (I = 1, Players_Count) {
+        if (Player_Role[I,number] == Role) {
+            if (Player_Alive_Status[I,string] == "alive") {
+                return 1
+            }
+        }
+    }
+    return 0
+}
+
+function number all_others_dead(Role:number)
+{
+    for (I = 1, Players_Count) {
+        if (Player_Role[I,number] != Role) {
+            if (Player_Alive_Status[I,string] == "alive") {
+                return 0
+            }
+        }
+    }
+    return 1
+}
+
+function void terminate_game(Reason:string)
+{
+    Game_Finished = 1
+    for (I = 1, Players_Count) {
+        Players[I,entity]:sendMessageColor(vec(255,0,0), GameSuffix + " ", vec(255), Reason)
+        Players[I,entity]:plyNoclip(0)
+    }
+    for (I = 1, Prop_Base:count()){
+        if (Prop_Base[I,entity]:isValid()){
+            Prop_Base[I,entity]:propDelete()
+        }
+    }
+    timer("reset", 1)
+}
+
+function void is_game_finished()
+{
+    if (Role_Exist[11, number] == 1) {
+        if (all_others_dead(11) == 1) {
+            terminate_game(White_Wolf_Won_MSG)
+        }
+    }
+    if (Role_Exist[1, number] == 1 & Role_Exist[11, number] == 0 & Role_Exist[12, number] == 0) {
+        if (all_others_dead(1) == 1) {
+            terminate_game(Wolf_Won_MSG)
+        }
+    }
+    if (Role_Exist[1, number] == 1 & Role_Exist[12, number] == 1) {
+        if (is_playerrole_alive(1) == 1 & is_playerrole_alive(2) == 0 & is_playerrole_alive(3) == 0 & is_playerrole_alive(4) == 0
+        & is_playerrole_alive(5) == 0 & is_playerrole_alive(6) == 0 & is_playerrole_alive(7) == 0 & is_playerrole_alive(8) == 0
+        & is_playerrole_alive(9) == 0 & is_playerrole_alive(10) == 0 & is_playerrole_alive(11) == 0) {
+            terminate_game(Wolf_Won_MSG)
+        }
+    }
+    if (Role_Exist[1, number] == 1) {
+        if (is_playerrole_alive(1) == 0 & is_playerrole_alive(11) == 0 & is_playerrole_alive(12) == 0) {
+            terminate_game(Village_Won_MSG)
+        }
+    }
+}
+
+if (Mode == 1)
+{ 
+    for (I = 1, numPlayers()) {
+        local String = players()[I,entity]:lastSaid():explode(" ")
+
+        if (chatClk(players()[I,entity]) & String:string(1) == Join_CMD) {
+            hideChat(1)
+            if (players()[I,entity] != Players[I,entity]) {
+                add_new_player(I)
+            } else {
+                Players[I,entity]:sendMessageColor(vec(255,0,0), GameSuffix + " ", vec(255), Already_On_MSG)
+                Players[I,entity]:soundPlay(I, 0, Player_Join_Denied_Sound)
+            }
+        }
+    }
+    local StringLocal = owner():lastSaid():explode(" ")
+    
+    if (chatClk(owner()) & StringLocal:string(1) == Start_CMD) {
+        hideChat(1)
+        role_assignation()
+        say_players_roles()
+        timer("init_night", 2000)
+        timer("init_playing_turn", 4000)
+        Time_Left = inf()
+        Couple[1,entity] = noentity()
+        Couple[2,entity] = noentity()
+        Mode = 2
+    }
+}
+
+
+if(Mode == 2)
+{
+    interval(Interval_Timer)
+    for (I = 1, Players_Count) {
+        local Distance = Players[I,entity]:pos():distance(Prop_Base[I, entity]:pos())
+        local Max_Distance = 10
+        local Add_Players_Height = 13
+        if (Distance > Max_Distance & Prop_Base[I, entity]:isValid()) {
+            Players[I,entity]:plySetPos(Prop_Base[I, entity]:toWorld(vec(0, 0, Add_Players_Height)))
+            Players[I,entity]:plyNoclip(1)
+        }
+    }
+    if (Game_Status == "night") {
+        scroll_eyes_down()
+        Time_Left -= Interval_Timer / 1000
+        send_msg_center_to_role(Actual_Role_Playing, floor(Time_Left):toString())
+        if (Actual_Role_Playing == 1 | Actual_Role_Playing == 11 | Actual_Role_Playing == 12) {
+            vote_to_kill(Actual_Role_Playing)
+        }
+        if (Actual_Role_Playing == 3) {
+            witch(Actual_Role_Playing)
+        }
+        if (Actual_Role_Playing == 7) {
+            thief(Actual_Role_Playing)
+        }
+        if (Actual_Role_Playing == 4) {
+            seer(Actual_Role_Playing)
+        }
+        if (Actual_Role_Playing == 5) {
+            cupidon(Actual_Role_Playing)
+        }
+        if (Actual_Role_Playing == 9) {
+            raven(Actual_Role_Playing)
+        }
+        if (Time_Left <= 1) {
+            timer("init_playing_turn", 10)
+            Time_Left = inf()
+        }
+    }
+    if (Game_Status == "day" & Game_Finished == 0) {
+        Time_Left -= Interval_Timer / 1000
+        send_msg_center_to_role(Actual_Role_Playing, floor(Time_Left):toString())
+        if (Is_Mayor == 0) {
+            vote_for_mayor()
+            if (Time_Left <= 1) {
+                Time_Left = Vote_Day_Time
+                stoptimer("init_night")
+                stoptimer("init_playing_turn")
+                vote_result(Actual_Role_Playing)
+                reset_votes()
+                Is_Mayor = 1
+                timer("init_night", Time_Left * 1000)
+                timer("init_playing_turn", Time_Left * 1000 + 2000)
+                send_msg_to_players(Kill_Vote_Day_MSG)
+            }
+        }
+        if (Is_Mayor == 1) {
+            vote_for_mayor()
+            if (Time_Left <= 1) {
+                vote_result(Actual_Role_Playing)
+                reset_votes()
+                day_up_break_news(Actual_Role_Playing, Day_Up_MSG)
+                is_game_finished()
+            }
+        }
+    }
+}
+
+if (clk("init_night"))
+{
+    Eyes_Scroll_Status = 0
+    Game_Status = "night"
+    Nights_Count += 1
+    holoAlpha(1, 200)
+}
+
+if (clk("init_playing_turn"))
+{
+    vote_result(Actual_Role_Playing)
+    reset_votes()
+    Actual_Turn += 1
+    Actual_Turn = find_role_playing(Actual_Turn)
+    if (role_order_to_role_id(Actual_Turn) == 5 & Nights_Count != 1){
+        Actual_Turn += 1
+        Actual_Turn = find_role_playing(Actual_Turn)
+    }
+    if (role_order_to_role_id(Actual_Turn) == 7 & Nights_Count != 1){
+        Actual_Turn += 1
+        Actual_Turn = find_role_playing(Actual_Turn)
+    }
+    if (role_order_to_role_id(Actual_Turn) == 6) {
+        Actual_Turn += 1
+        Actual_Turn = find_role_playing(Actual_Turn)
+    }
+    Actual_Role_Playing = role_order_to_role_id(Actual_Turn)
+    #print("Role turn : " + Roles_Name[Actual_Role_Playing, string] + Actual_Role_Playing)
+    if (Actual_Turn == 0 & Game_Finished == 0) {
+        Game_Status = "day"
+        holoAlpha(1, 0)
+        Time_Left = Vote_Day_Time
+        send_msg_to_players(Day_Up_MSG)
+        day_up_break_news(Actual_Role_Playing, Day_Up_MSG)
+        is_game_finished()
+        timer("init_night", Time_Left * 1000)
+        timer("init_playing_turn", Time_Left * 1000 + 2000)
+        if (Is_Mayor == 0) {
+            send_msg_to_players(Mayor_Election_MSG)
+        } else {
+            send_msg_to_players(Kill_Vote_Day_MSG)
+        }
+    } else {
+        Time_Left = Vote_Time
+        send_msg_to_role(Actual_Role_Playing, Roles_Act[Actual_Role_Playing, string])
+        if (Actual_Role_Playing == 3) {
+            witch_advert(Actual_Role_Playing)
+        }
+    }
+}
+
+if (clk("reset")) {
+    reset()
+}
+
