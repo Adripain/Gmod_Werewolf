@@ -481,6 +481,7 @@ function void day_up_break_news(Role:number, Message:string)
             Prop_Base[Y,entity]:particleAttach("drg_wrenchmotron_teleport")
             Prop_Base[Y,entity]:soundPlay(Y, 5, "ambient/levels/labs/electric_explosion4.wav")
             Player_Alive_Status[Y,string] = "none"
+            Role_Players_Contain_Count[Player_Role[find_player_id_from_entity(Players[Y,entity]), number] ,number] = Role_Players_Contain_Count[Player_Role[find_player_id_from_entity(Players[Y,entity]), number] ,number] - 1
         }
         if (Player_Alive_Status[Y,string] == "none" & find_player_id_from_entity(Couple[2,entity]) == Y & Couple[2,entity] != noentity()) {
             for (I = 1, Players_Count) {
@@ -492,6 +493,8 @@ function void day_up_break_news(Role:number, Message:string)
             Player_Alive_Status[Y,string] = "none"
             Prop_Base[Y,entity]:particleAttach("drg_wrenchmotron_teleport")
             Prop_Base[Y,entity]:soundPlay(Y, 5, "ambient/levels/labs/electric_explosion4.wav")
+            Role_Players_Contain_Count[Player_Role[find_player_id_from_entity(Players[Y,entity]), number] ,number] = Role_Players_Contain_Count[Player_Role[find_player_id_from_entity(Players[Y,entity]), number] ,number] - 1
+
         }
     }
     for (Y = 1, Players_Count) {
@@ -505,6 +508,7 @@ function void day_up_break_news(Role:number, Message:string)
             Player_Alive_Status[Y,string] = "none"
             Prop_Base[Y,entity]:particleAttach("drg_wrenchmotron_teleport")
             Prop_Base[Y,entity]:soundPlay(Y, 5, "ambient/levels/labs/electric_explosion4.wav")
+            Role_Players_Contain_Count[Player_Role[find_player_id_from_entity(Players[Y,entity]), number] ,number] = Role_Players_Contain_Count[Player_Role[find_player_id_from_entity(Players[Y,entity]), number] ,number] - 1
         }
     }
 }
@@ -582,7 +586,7 @@ function void terminate_game(Reason:string)
         Players[I,entity]:sendMessageColor(vec(255,0,0), GameSuffix + " ", vec(255), Reason)
         Players[I,entity]:plyNoclip(0)
         Players[I,entity]:plyGive("weapon_physgun")
-        Players[I,entity]:plyGive("gmod_tool")
+        Players[I,entity]:plyGive("gmod_camera")
         Players[I,entity]:plyGive("gmod_tool")
     }
     for (I = 1, Prop_Base:count()){
