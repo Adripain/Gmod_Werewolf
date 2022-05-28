@@ -69,8 +69,8 @@ function void spawn_new_base(Players_Count:number)
 {
     local Circle_Scale = Max_Players * 25
     local Prop_Height = 5
-    local VecSpawn = E:toWorld(vec(sin(Players_Count*360/Max_Players) * Circle_Scale, cos(Players_Count*360/Max_Players) * Circle_Scale, Prop_Height))
-    local AngSpawn = E:toWorld(ang(0, (Players_Count / Max_Players) * 360, 0))
+    local VecSpawn = E:toWorld(vec(sin(Players_Count*370/Max_Players) * Circle_Scale, cos(Players_Count*370/Max_Players) * Circle_Scale, Prop_Height))
+    local AngSpawn = E:toWorld(ang(0, (Players_Count / Max_Players) * 370, 0))
 
     Prop_Base[Players_Count, entity] = propSpawn("models/hunter/blocks/cube05x05x025.mdl", VecSpawn, -AngSpawn, 1)
 }
@@ -233,7 +233,7 @@ function void vote_to_kill(Role:number)
                     Voted_For[I,entity] = Players[I,entity]:aimEntity()
                     Got_Votes_On[find_player_id_from_entity(Players[I,entity]:aimEntity()),number] = Got_Votes_On[find_player_id_from_entity(Players[I,entity]:aimEntity()),number] + 1
                     holoCreate(I + 10)
-                    holoPos(I + 10, Voted_For[I,entity]:toWorld(vec(0, 0, 60 + I * 10)))
+                    holoPos(I + 10, Voted_For[I,entity]:toWorld(vec(0, 0, 70 + I * 10)))
                     holoModel(I + 10, "models/sprops/misc/alphanum/alphanum_arrow_b.mdl")
                     holoAng(I + 10, Prop_Base[find_player_id_from_entity(Players[I,entity]:aimEntity()),entity]:toWorld(ang(0,0,180)))
                     send_votemsg__to_role(Role,Players[I,entity]:name(), Voted_For_MSG, Players[I,entity]:aimEntity():name())
@@ -250,7 +250,7 @@ function void vote_to_kill(Role:number)
                         }
                         if (Voted_For[I,entity] != Players[I,entity]:aimEntity()) {
                             Voted_For[I,entity] = Players[I,entity]:aimEntity()
-                            holoPos(I + 10, Voted_For[I,entity]:toWorld(vec(0, 0, 60 + I * 10)))
+                            holoPos(I + 10, Voted_For[I,entity]:toWorld(vec(0, 0, 70 + I * 10)))
                             holoAng(I + 10, Prop_Base[find_player_id_from_entity(Players[I,entity]:aimEntity()),entity]:toWorld(ang(0,0,180)))
                             send_votemsg__to_role(Role,Players[I,entity]:name(), Voted_For_MSG, Players[I,entity]:aimEntity():name())
                             Players_Vote_Count[Players[I,entity]:aimEntity():id(), number] = Players_Vote_Count[Players[I,entity]:aimEntity():id(), number] + 1
@@ -266,12 +266,12 @@ function void vote_for_mayor()
 {
     runOnKeys(Players, 1)
 
-    if (RavenVictim != noentity() & Mayor == noentity()) {
+    if (RavenVictim != noentity() & Mayor != noentity()) {
         local Raven_Add_Votes_Count = 2
         Got_Votes_On[find_player_id_from_entity(RavenVictim),number] = Raven_Add_Votes_Count
         for (I = 1, Raven_Add_Votes_Count) {
             holoCreate(I + 5)
-            holoPos(I + 5, Voted_For[I,entity]:toWorld(vec(0, 0, 60 + I * 10)))
+            holoPos(I + 5, Voted_For[I,entity]:toWorld(vec(0, 0, 70 + I * 10)))
             holoColor(I + 5, vec(100,0,255))
             holoModel(I + 5, "models/sprops/misc/alphanum/alphanum_arrow_b.mdl")
             holoAng(I + 5, Prop_Base[find_player_id_from_entity(Players[I,entity]:aimEntity()),entity]:toWorld(ang(0,0,180)))
@@ -286,7 +286,7 @@ function void vote_for_mayor()
                     Voted_For[I,entity] = Players[I,entity]:aimEntity()
                     Got_Votes_On[find_player_id_from_entity(Players[I,entity]:aimEntity()),number] = Got_Votes_On[find_player_id_from_entity(Players[I,entity]:aimEntity()),number] + 1
                     holoCreate(I + 10)
-                    holoPos(I + 10, Voted_For[I,entity]:toWorld(vec(0, 0, 60 + I * 10)))
+                    holoPos(I + 10, Voted_For[I,entity]:toWorld(vec(0, 0, 70 + I * 10)))
                     holoColor(I + 10, Players[I,entity] == Mayor ? vec(255,0,0) : vec(255))
                     holoModel(I + 10, "models/sprops/misc/alphanum/alphanum_arrow_b.mdl")
                     holoAng(I + 10, Prop_Base[find_player_id_from_entity(Players[I,entity]:aimEntity()),entity]:toWorld(ang(0,0,180)))
@@ -314,7 +314,7 @@ function void vote_for_mayor()
                         }
                         if (Voted_For[I,entity] != Players[I,entity]:aimEntity() & Can_Vote_Toogle[I, number] == 1) {
                             Voted_For[I,entity] = Players[I,entity]:aimEntity()
-                            holoPos(I + 10, Voted_For[I,entity]:toWorld(vec(0, 0, 60 + I * 10)))
+                            holoPos(I + 10, Voted_For[I,entity]:toWorld(vec(0, 0, 70 + I * 10)))
                             holoAng(I + 10, Prop_Base[find_player_id_from_entity(Players[I,entity]:aimEntity()),entity]:toWorld(ang(0,0,180)))
                             holoColor(I + 10, Players[I,entity] == Mayor ? vec(255,0,0) : vec(255))
                             send_votemsg__to_players(Players[I,entity]:name(), Voted_For_MSG, Players[I,entity]:aimEntity():name())
@@ -509,6 +509,15 @@ function void day_up_break_news(Role:number, Message:string)
     }
 }
 
+function void role_playing_announcement(Role:number)
+{
+    if (Roles_Turn_Mess[Role,string] != "") {
+        for (I = 1, Players_Count) {
+            Players[I,entity]:sendMessageColor(vec(255,0,0), GameSuffix + " ", vec(0, 80, 255), Roles_Turn_Mess[Role,string])        
+        }
+    }
+}
+
 function void vote_result(Role:number)
 {
     local Player_Id_Got_Most_Votes = 0
@@ -572,6 +581,9 @@ function void terminate_game(Reason:string)
     for (I = 1, Players_Count) {
         Players[I,entity]:sendMessageColor(vec(255,0,0), GameSuffix + " ", vec(255), Reason)
         Players[I,entity]:plyNoclip(0)
+        Players[I,entity]:plyGive("weapon_physgun")
+        Players[I,entity]:plyGive("gmod_tool")
+        Players[I,entity]:plyGive("gmod_tool")
     }
     for (I = 1, Prop_Base:count()){
         if (Prop_Base[I,entity]:isValid()){
@@ -720,6 +732,10 @@ if (clk("init_playing_turn"))
     reset_votes()
     Actual_Turn += 1
     Actual_Turn = find_role_playing(Actual_Turn)
+    if (role_order_to_role_id(Actual_Turn) == 2) {
+        Actual_Turn += 1
+        Actual_Turn = find_role_playing(Actual_Turn)
+    }
     if (role_order_to_role_id(Actual_Turn) == 5 & Nights_Count != 1){
         Actual_Turn += 1
         Actual_Turn = find_role_playing(Actual_Turn)
@@ -733,6 +749,7 @@ if (clk("init_playing_turn"))
         Actual_Turn = find_role_playing(Actual_Turn)
     }
     Actual_Role_Playing = role_order_to_role_id(Actual_Turn)
+    role_playing_announcement(Actual_Role_Playing)
     #print("Role turn : " + Roles_Name[Actual_Role_Playing, string] + Actual_Role_Playing)
     if (Actual_Turn == 0 & Game_Finished == 0) {
         Game_Status = "day"
