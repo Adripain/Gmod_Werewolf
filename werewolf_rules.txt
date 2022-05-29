@@ -1,0 +1,22 @@
+@name werewolf_rules
+#include "werewolf/werewolf_languages"
+
+function void header(Player:entity, Message:string)
+{
+    local Header_Color = vec(255, 0, 0)
+    Player:sendMessageColor(Header_Color, Message:upper())
+}
+
+function void normal(Player:entity, Message:string)
+{
+    local Normal_Color = vec(255)
+    Player:sendMessageColor(Normal_Color, Message)
+}
+
+function void rules_messages(Player:entity)
+{
+    header(Player, Rules_Header_MSG)
+    for (I = 1, Rules_MSGS:count()) {
+        normal(Player, "- " + Rules_MSGS[I, string])
+    }
+}

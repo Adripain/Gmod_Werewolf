@@ -17,7 +17,7 @@
 # Configuration Vars #
 @persist [Max_Players Interval_Timer]:number
 @persist [Player_Join_Successfully_Sound Player_Join_Denied_Sound]:string
-@persist [Join_CMD Start_CMD]:string
+@persist [Join_CMD Start_CMD Rules_CMD]:string
 ######################
 
 @trigger all
@@ -35,7 +35,8 @@ if (first() | dupefinished()){
     #include "werewolf/werewolf_role_playing_order"
     #include "werewolf/werewolf_languages"
     #include "werewolf/werewolf_ambiance"
-    
+    #include "werewolf/werewolf_rules"
+
     Mode = 1                #Do not touch
     Players_Count = 0       #Do not touch
     Eyes_Scroll_Status = 0  #Do not touch
@@ -61,6 +62,7 @@ if (first() | dupefinished()){
     ## COMMANDES ##
     Join_CMD = "!join"
     Start_CMD = "!start"
+    Rules_CMD = "!rules"
 
     create_holograms_ambiance(Max_Players)
 }
@@ -275,7 +277,7 @@ function void vote_for_mayor()
 {
     runOnKeys(Players, 1)
 
-    if (RavenVictim != noentity() & Mayor != noentity()) {
+    if (RavenVictim != noentity() & Is_Mayor == 1) {
         local Raven_Add_Votes_Count = 2
         Got_Votes_On[find_player_id_from_entity(RavenVictim),number] = Raven_Add_Votes_Count
         for (I = 1, Raven_Add_Votes_Count) {
@@ -313,7 +315,7 @@ function void vote_for_mayor()
                             Voted_For[I,entity] = Players[I,entity]:aimEntity()
                             holoPos(I + 10, Voted_For[I,entity]:toWorld(vec(0, 0, -500 + I * 10)))
                             Got_Votes_On[find_player_id_from_entity(Players[I,entity]:aimEntity()),number] = Got_Votes_On[find_player_id_from_entity(Players[I,entity]:aimEntity()),number] - 1
-                            send_msg_to_players(Players[I,entity]:name() + Canceled_Vote_MSG)
+                            send_votemsg_to_players(Players[I,entity]:name(), Canceled_Vote_MSG, "")
                             if (Players[I,entity] == Mayor) {
                                 Players_Vote_Count[Players[I,entity]:aimEntity():id(), number] = Players_Vote_Count[Players[I,entity]:aimEntity():id(), number] - 2
                             } else {
@@ -336,7 +338,7 @@ function void vote_for_mayor()
                     }
                 }
             }
-            if (Players[I,entity]:keyAttack1() == 0) {
+            if (Players[I,entity]:keyAttack1() == 0 & Has_Voted[I,number] == 0) {
                 Can_Vote_Toogle[I, number] = 1
             }
         }
@@ -653,6 +655,10 @@ if (Mode == 1)
                 Players[I,entity]:sendMessageColor(vec(255,0,0), GameSuffix + " ", vec(255), Already_On_MSG)
                 Players[I,entity]:soundPlay(I, 0, Player_Join_Denied_Sound)
             }
+        }
+        if (chatClk(players()[I,entity]) & String:string(1) == Rules_CMD) {
+            hideChat(1)
+            rules_messages(players()[I,entity])
         }
     }
     local StringLocal = owner():lastSaid():explode(" ")

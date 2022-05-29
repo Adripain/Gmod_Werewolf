@@ -5,6 +5,7 @@
 @persist [WereWolf_NAME Villager_NAME Witch_NAME Seer_NAME Cupidon_NAME Hunter_NAME Thief_NAME Little_Girl_NAME Raven_NAME Guard_NAME White_Wolf_NAME Black_Wolf_NAME]:string
 @persist [WereWolf_ACT Villager_ACT Witch_ACT Seer_ACT Cupidon_ACT Hunter_ACT Thief_ACT Little_Girl_ACT Raven_ACT Guard_ACT White_Wolf_ACT Black_Wolf_ACT]:string
 @persist [WereWolf_TM Villager_TM Witch_TM Seer_TM Cupidon_TM Hunter_TM Thief_TM Little_Girl_TM Raven_TM Guard_TM White_Wolf_TM Black_Wolf_TM]:string
+@persist [Rules_Header_MSG]:string Rules_MSGS:array
 
 if (first() | dupefinished()) {
     ## CONFIG ##
@@ -86,6 +87,15 @@ if (first() | dupefinished()) {
         Black_Wolf_TM = "Black Wolf is thinking to transform someone in WereWolf."
         Mayor_TM = ""
 
+        Rules_Header_MSG = "This is WereWolf Rules"
+        Rules_MSGS[1, string] = "The Werewolf is a game which is played a group of 5 at least"
+        Rules_MSGS[2, string] = "At the start of the game, you gonna have a random role"
+        Rules_MSGS[3, string] = "This role gonna tell you in wich team you gonna player: Werewolves or Simple Villagers"
+        Rules_MSGS[4, string] = "The game cycles days and nights, at night each roles plays turn by turn"
+        Rules_MSGS[5, string] = "At day, all players vote to kill someone, Mind to elect a Mayor first night, he gonna have double votes"
+        Rules_MSGS[6, string] = "Villagers Team won when all werewolfs are dead"
+        Rules_MSGS[7, string] = "Keep in mind, never tell your role, it must still secret !"
+        Rules_MSGS[8, string] = "Avaliable roles are : Simple Villagers, WereWolf, Seer, Witch, Thief, Cupidon, Guard, Raven, Hunter, Little Girl, White Wolf, Black Wolf"
         break
         
         case "fr",
@@ -160,6 +170,16 @@ if (first() | dupefinished()) {
         White_Wolf_TM = "Le Loup Blanc reflechit a tuer un Loup Garou."
         Black_Wolf_TM = "Le Loup Noir hesite a transformer un joueur en Loup Garou."
         Mayor_TM = ""
+
+        Rules_Header_MSG = "Voici les regles du jeu"
+        Rules_MSGS[1, string] = "Le loup-garou est un jeu qui se joue en groupe de 5 au minimum"
+        Rules_MSGS[2, string] = "Au début du jeu, vous aurez un role aléatoire"
+        Rules_MSGS[3, string] = "Ce role va vous dire dans quelle équipe vous allez jouer : Loups-Garous ou Simples Villageois"
+        Rules_MSGS[4, string] = "Le jeu alterne les jours et les nuits, la nuit chaque rôle joue tour à tour"
+        Rules_MSGS[5, string] = "Le jour, tous les joueurs votent pour tuer quelqu'un, pensez a elire un maire la premiere nuit, il aura un votes double"
+        Rules_MSGS[6, string] = "L'equipe des villageois a gagne lorsque tous les loups-garous sont morts"
+        Rules_MSGS[7, string] = "Gardez à l'esprit, ne dites jamais votre rôle, il doit quand même être secret !"
+        Rules_MSGS[8, string] = "Les roles disponibles sont : simples villageois, loup-garou, voyant, sorcière, voleur, cupidon, garde, corbeau, chasseur, petite fille, loup blanc, loup noir"
         break 
     }
 }
