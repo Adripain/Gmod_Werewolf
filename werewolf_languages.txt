@@ -7,7 +7,8 @@
 @persist [WereWolf_TM Villager_TM Witch_TM Seer_TM Cupidon_TM Hunter_TM Thief_TM Little_Girl_TM Raven_TM Guard_TM White_Wolf_TM Black_Wolf_TM]:string
 @persist [Rules_Header_MSG]:string Rules_MSGS:array
 
-if (first() | dupefinished()) {
+if (first() | dupefinished())
+{
     ## CONFIG ##
     local Language = "fr" # fr or en
     
@@ -90,7 +91,7 @@ if (first() | dupefinished()) {
         Rules_Header_MSG = "This is WereWolf Rules"
         Rules_MSGS[1, string] = "The Werewolf is a game which is played a group of 5 at least"
         Rules_MSGS[2, string] = "At the start of the game, you gonna have a random role"
-        Rules_MSGS[3, string] = "This role gonna tell you in wich team you gonna player: Werewolves or Simple Villagers"
+        Rules_MSGS[3, string] = "This role gonna tell you in wich team you gonna play: Werewolves or Simple Villagers"
         Rules_MSGS[4, string] = "The game cycles days and nights, at night each roles plays turn by turn"
         Rules_MSGS[5, string] = "At day, all players vote to kill someone, Mind to elect a Mayor first night, he gonna have double votes"
         Rules_MSGS[6, string] = "Villagers Team won when all werewolfs are dead"
