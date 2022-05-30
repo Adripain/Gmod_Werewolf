@@ -1,5 +1,4 @@
 @name [A] - Werewolves
-@inputs 
 @outputs Players:array Players_Count:number Time_Left Actual_Role_Playing Got_Votes_On:table
 
 # Game Datas #
@@ -11,47 +10,47 @@
 @persist [Players_Vote_Count Has_Voted Got_Votes_On Voted_For Player_Alive_Status Player_Id_To_Player_GameId Couple Can_Vote_Toogle]:table
 @persist Time_Left
 @persist Mayor:entity RavenVictim:entity
-
 ##############
 
 # Configuration Vars #
 @persist [Max_Players Interval_Timer]:number
 @persist [Player_Join_Successfully_Sound Player_Join_Denied_Sound]:string
 @persist [Join_CMD Start_CMD Rules_CMD]:string
-######################
+##############
 
 @trigger all
 @model models/props_c17/SuitCase001a.mdl
 
-if (first() | dupefinished()){
+if (first() | dupefinished())
+{
     
     runOnTick(0)
     runOnChat(1)
     
-    ## CONFIGURATION ##
-    Max_Players = 10 #You can increase this number to 24
-    
+    ## INCLUDES ##
     #include "werewolf/werewolf_roles"
     #include "werewolf/werewolf_role_playing_order"
     #include "werewolf/werewolf_languages"
     #include "werewolf/werewolf_ambiance"
     #include "werewolf/werewolf_rules"
 
+    ## CONFIGURATION ##
+    Max_Players = 10        #You can increase this number to 24
+    Revive_Potion = 1       #Witch revive potion base count
+    Kill_Potion = 1         #Witch kill potion base count
+    Vote_Time = 30          #Night Vote Time In seconds
+    Vote_Day_Time = 45      #Day Vote Time In seconds
+    Interval_Timer = 30     #Game Optimization, higher is better
+
     Mode = 1                #Do not touch
     Players_Count = 0       #Do not touch
     Eyes_Scroll_Status = 0  #Do not touch
     Game_Status = "day"     #Do not touch
     Nights_Count = 0        #Do not touch
-    Revive_Potion = 1
-    Kill_Potion = 1
-    Actual_Turn = 0
-    Game_Finished = 0
-    Is_Mayor = 0
-    Vote_Time = 30          #In seconds
-    Vote_Day_Time = 45      #In seconds
-    Interval_Timer = 30
-    
-    E = entity()
+    Actual_Turn = 0         #Do not touch
+    Game_Finished = 0       #Do not touch
+    Is_Mayor = 0            #Do not touch
+    E = entity()            #Do not touch
     RavenVictim = noentity()#Do not touch
     Mayor = noentity()      #Do not touch
     
@@ -59,7 +58,7 @@ if (first() | dupefinished()){
     Player_Join_Successfully_Sound = "buttons/blip2.wav"
     Player_Join_Denied_Sound = "buttons/weapon_cant_buy.wav"
     
-    ## COMMANDES ##
+    ## COMMANDS ##
     Join_CMD = "!join"
     Start_CMD = "!start"
     Rules_CMD = "!rules"
@@ -170,7 +169,6 @@ function void scroll_eyes_down()
         }
     }
 }
-
 
 function void send_msg_to_role(Role:number, Message:string)
 {
@@ -696,6 +694,7 @@ if(Mode == 2)
         if (Actual_Role_Playing == 1 | Actual_Role_Playing == 11 | Actual_Role_Playing == 12) {
             vote_to_kill(Actual_Role_Playing)
         }
+        #Need so add a switch case
         if (Actual_Role_Playing == 3) {
             witch(Actual_Role_Playing)
         }
@@ -777,7 +776,6 @@ if (clk("init_playing_turn"))
     }
     Actual_Role_Playing = role_order_to_role_id(Actual_Turn)
     role_playing_announcement(Actual_Role_Playing)
-    #print("Role turn : " + Roles_Name[Actual_Role_Playing, string] + Actual_Role_Playing)
     if (Actual_Turn == 0 & Game_Finished == 0) {
         Game_Status = "day"
         set_day_ambiance()
